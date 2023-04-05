@@ -1,0 +1,21 @@
+{
+  "english": "English",
+  "polish": "Polish",
+  "register": "Sign Up",
+  "login": "Sign In",
+  "username": "Username",
+  "password": "Password",
+  "register-button": "Sign Up",
+  "login-button": "Sign In",
+  "dont-have-account": "Don't have an account? Sign Up",
+  "already-have-account": "Already have an account? Sign In",
+  "register.password-rules.title": "Password should meet this conditions:",
+  "register.password-rules.upper-case-letter": "at least one upper case letter",
+  "register.password-rules.lower-case-letter": "at least one lower case letter",
+  "register.password-rules.digit": "at least one digit",
+  "register.password-rules.special-character": "at least one special character",
+  "register.password-rules.min-characters": "minimum 8 characters",
+  "register.username-error": "User name should contain minimum 5 characters",
+  "register-success": "You have successfully registered. You will be redirected to home page",
+  "register-user-exist": "User with this name already exists"
+}

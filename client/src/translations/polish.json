@@ -1,0 +1,21 @@
+{
+  "english": "Angielski",
+  "polish": "Polski",
+  "register": "Zarejestruj się",
+  "login": "Zaloguj się",
+  "username": "Nazwa użytkownika",
+  "password": "Hasło",
+  "register-button": "Zarejestruj",
+  "login-button": "Zaloguj",
+  "dont-have-account": "Nie masz konta? Zarejestruj się",
+  "already-have-account": "Masz już konto? Zaloguj się",
+  "register.password-rules.title": "Hasło powinno spełniać podane wymagania:",
+  "register.password-rules.upper-case-letter": "przynajmniej jedna wielka litera",
+  "register.password-rules.lower-case-letter": "przynajmniej jedna mała litera",
+  "register.password-rules.digit": "przynajmniej jedna cyfra",
+  "register.password-rules.special-character": "przynajmniej jeden znak specjalny",
+  "register.password-rules.min-characters": "minimum 8 znaków",
+  "register.username-error": "Nazwa użytkownika powinna zawierać conajmniej 5 znaków",
+  "register-success": "Rejestracja przebiegła pomyślnie. Zostaniesz przeniesiony na stronę główną",
+  "register-user-exist": "Użytkownik o podanej nazwie już istnieje"
+}
