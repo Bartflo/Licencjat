@@ -167,6 +167,38 @@ app.post("/api/register", async (req, res) => {
     res.status(400).json({ message: "user already exists" });
   }
 });
+app.post("/api/login", async (req, res) => {
+  try {
+    const user = await User.findOne({
+      userName: req.body.userName,
+    });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Wrong password" });
+    }
+    if (isPasswordValid) {
+      const token = jwt.sign(
+        {
+          userName: user.userName,
+        },
+        process.env.jwtkey
+      );
+
+      return res.json({ status: "ok", token: token, userName: user.userName });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "Something went wrong" });
+  }
+});
 
 app.get("/api", (req, res) => {
   res.json(tasks);

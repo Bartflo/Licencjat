@@ -32,14 +32,7 @@ function App() {
 
   return (
     <LanguageContext.Provider value={{ activeLanguage, setActiveLanguage }}>
-      <BrowserRouter>
-        {routes}
-        {/* <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/tasks" element={<Task socket={socket} />} />
-        </Routes> */}
-      </BrowserRouter>
+      <BrowserRouter>{routes}</BrowserRouter>
     </LanguageContext.Provider>
   );
 }

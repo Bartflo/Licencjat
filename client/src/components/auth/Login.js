@@ -12,20 +12,62 @@ import {
 } from "@mui/material";
 import { LanguageSelect } from "../../translations/LanguageSelect";
 import { t } from "../../translations/utils";
+import { debounce } from "lodash";
+import { setJwtToken, setUserNameInSessionStorage } from "./utils";
+import { AuthAlert } from "./AuthAlert";
+import { DEBOUNCE_TIMEOUT } from "./constants";
 
 export const Login = () => {
-  const [username, setUsername] = useState("");
+  const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorAlertOpen, setErrorAlertOpen] = useState(false);
+  const [successAlertOpen, setSuccessAlertOpen] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(true);
+
+  const handleUserNameChange = debounce((userName) => {
+    setUsername(userName);
+    setIsFormValid(true);
+  }, DEBOUNCE_TIMEOUT);
+
+  const handlePasswordChange = debounce((password) => {
+    setPassword(password);
+    setIsFormValid(true);
+  }, DEBOUNCE_TIMEOUT);
 
   const handleSubmit = (e) => {
-    // e.preventDefault();
-    // //👇🏻 saves the username to localstorage
-    // localStorage.setItem("userId", username);
-    // setUsername("");
-    // //👇🏻 redirects to the Tasks page.
     e.preventDefault();
-    console.log(username, password);
-    // navigate("/tasks");
+    fetch("http://localhost:4000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName, password }),
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        return Promise.reject(res);
+      })
+      .then((json) => {
+        setJwtToken(json.token);
+        setUserNameInSessionStorage(json.userName);
+        setSuccessAlertOpen(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      })
+      .catch((error) => {
+        error.json().then((json) => {
+          if (
+            json.message === "User not found" ||
+            json.message === "Wrong password"
+          ) {
+            setErrorAlertOpen(true);
+            setIsFormValid(false);
+          }
+        });
+      });
   };
   return (
     <Container component="main" maxWidth="xs">
@@ -53,7 +95,7 @@ export const Login = () => {
             name="username"
             autoFocus
             onChange={(e) => {
-              setUsername(e.target.value);
+              handleUserNameChange(e.target.value);
             }}
           />
           <TextField
@@ -66,13 +108,15 @@ export const Login = () => {
             id="password"
             autoComplete="current-password"
             onChange={(e) => {
-              setPassword(e.target.value);
+              handlePasswordChange(e.target.value);
             }}
           />
           <Button
             type="submit"
             fullWidth
             variant="contained"
+            disabled={!isFormValid}
+            onClick={handleSubmit}
             sx={{ mt: 3, mb: 2 }}
           >
             {t("login-button")}
@@ -84,6 +128,18 @@ export const Login = () => {
           </Grid>
         </Box>
       </Box>
+      <AuthAlert
+        open={errorAlertOpen}
+        severity="error"
+        message={t("login-error")}
+        onClose={() => setErrorAlertOpen(false)}
+      />
+      <AuthAlert
+        open={successAlertOpen}
+        severity="success"
+        message={t("login-success")}
+        onClose={() => setSuccessAlertOpen(false)}
+      />
     </Container>
   );
 };

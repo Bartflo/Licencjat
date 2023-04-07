@@ -17,5 +17,7 @@
   "register.password-rules.min-characters": "minimum 8 znaków",
   "register.username-error": "Nazwa użytkownika powinna zawierać conajmniej 5 znaków",
   "register-success": "Rejestracja przebiegła pomyślnie. Zostaniesz przeniesiony na stronę główną",
-  "register-user-exist": "Użytkownik o podanej nazwie już istnieje"
+  "register-user-exist": "Użytkownik o podanej nazwie już istnieje",
+  "login-error": "Niepoprawna nazwa użytkownika lub hasło",
+  "login-success": "Zalogowano pomyślnie. Zostaniesz przeniesiony na stronę główną"
 }

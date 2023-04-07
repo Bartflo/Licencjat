@@ -1,5 +1,4 @@
 import React, { useState, useMemo, Fragment, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Avatar,
   IconButton,
@@ -29,7 +28,6 @@ export const Register = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [successAlertOpen, setSuccessAlertOpen] = useState(false);
   const [errorAlertOpen, setErrorAlertOpen] = useState(false);
-  const navigate = useNavigate();
 
   const passwordRulesList = useMemo(
     () => (
@@ -92,7 +90,7 @@ export const Register = () => {
         localStorage.setItem("userId", json.userName);
         setSuccessAlertOpen(true);
         setTimeout(() => {
-          navigate("/tasks");
+          window.location.reload();
         }, 3000);
       })
       .catch((error) => {
