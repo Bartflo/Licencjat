@@ -8,6 +8,7 @@ const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 const User = require("./models/user");
+const Task = require("./models/task");
 
 const { Server } = require("socket.io");
 const PORT = 4000;
@@ -85,34 +86,150 @@ socketIO.on("connection", (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
 
   socket.on("createTask", (data) => {
-    const newTask = { id: fetchID(), title: data.task, comments: [] };
-    tasks["pending"].items.push(newTask);
-    socketIO.emit("tasks", tasks);
-  });
+    if (!data) {
+      return console.error("No data provided for createTask event.");
+    }
 
-  socket.on("taskDragged", (data) => {
+    const newTask = { title: data.task, comments: [] };
+
+    Task.findOneAndUpdate(
+      { "pending.title": "pending" },
+      { $push: { "pending.items": newTask } },
+      { new: true }
+    )
+      .then((updatedTask) => {
+        const pendingTasks = [
+          {
+            title: "pending",
+            items: updatedTask.pending.items,
+          },
+        ];
+        const ongoingTasks = [
+          {
+            title: "ongoing",
+            items: updatedTask.ongoing.items,
+          },
+        ];
+        const completedTasks = [
+          {
+            title: "completed",
+            items: updatedTask.completed.items,
+          },
+        ];
+        socketIO.emit("tasks", {
+          pendingTasks,
+          ongoingTasks,
+          completedTasks,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+  socket.on("taskDragged", async (data) => {
     const { source, destination } = data;
-    const itemMoved = {
-      ...tasks[source.droppableId].items[source.index],
-    };
-    console.log("ItemMoved>>> ", itemMoved);
-    tasks[source.droppableId].items.splice(source.index, 1);
-    tasks[destination.droppableId].items.splice(
-      destination.index,
-      0,
-      itemMoved
-    );
-    console.log("Source >>>", tasks[source.droppableId].items);
-    console.log("Destination >>>", tasks[destination.droppableId].items);
-    socketIO.emit("tasks", tasks);
-  });
 
-  socket.on("fetchComments", (data) => {
-    const taskItems = tasks[data.category].items;
-    for (let i = 0; i < taskItems.length; i++) {
-      if (taskItems[i].id === data.id) {
-        socketIO.emit("comments", taskItems[i].comments);
+    try {
+      let sourceTasks;
+      let destinationTasks;
+
+      if (source.columnName === "pendingTasks") {
+        sourceTasks = await Task.findOneAndUpdate(
+          { "pending.items._id": source.droppableId },
+          { $pull: { "pending.items": { _id: source.droppableId } } },
+          { new: true }
+        ).select("pending.items");
+      } else if (source.columnName === "ongoingTasks") {
+        sourceTasks = await Task.findOneAndUpdate(
+          { "ongoing.items._id": source.droppableId },
+          { $pull: { "ongoing.items": { _id: source.droppableId } } },
+          { new: true }
+        ).select("ongoing.items");
+      } else if (source.columnName === "completedTasks") {
+        sourceTasks = await Task.findOneAndUpdate(
+          { "completed.items._id": source.droppableId },
+          { $pull: { "completed.items": { _id: source.droppableId } } },
+          { new: true }
+        ).select("completed.items");
       }
+
+      if (destination.columnName === "ongoingTasks") {
+        destinationTasks = await Task.findOneAndUpdate(
+          { "ongoing.title": "ongoing" },
+          {
+            $push: {
+              "ongoing.items": {
+                $each: [{ _id: source.droppableId, title: source.title }],
+                $position: destination.index,
+              },
+            },
+          },
+          { new: true }
+        ).select("ongoing.items");
+      } else if (destination.columnName === "completedTasks") {
+        destinationTasks = await Task.findOneAndUpdate(
+          { "completed.title": "completed" },
+          {
+            $push: {
+              "completed.items": {
+                $each: [{ _id: source.droppableId, title: source.title }],
+                $position: destination.index,
+              },
+            },
+          },
+          { new: true }
+        ).select("completed.items");
+      } else if (destination.columnName === "pendingTasks") {
+        destinationTasks = await Task.findOneAndUpdate(
+          { "pending.title": "pending" },
+          {
+            $push: {
+              "pending.items": {
+                $each: [{ _id: source.droppableId, title: source.title }],
+                $position: destination.index,
+              },
+            },
+          },
+          { new: true }
+        ).select("pending.items");
+      }
+
+      if (!sourceTasks || !destinationTasks) {
+        console.log("Tasks not found");
+        return;
+      }
+
+      const tasks = await Task.find()
+        .lean()
+        .then((tasks) => {
+          const pendingTasks = tasks.map((task) => {
+            return {
+              title: task.pending.title,
+              items: task.pending.items,
+            };
+          });
+          const ongoingTasks = tasks.map((task) => {
+            return {
+              title: task.ongoing.title,
+              items: task.ongoing.items,
+            };
+          });
+          const completedTasks = tasks.map((task) => {
+            return {
+              title: task.completed.title,
+              items: task.completed.items,
+            };
+          });
+          return { pendingTasks, ongoingTasks, completedTasks };
+        })
+        .catch((err) => {
+          console.log(err);
+          return null;
+        });
+
+      socketIO.emit("tasks", tasks);
+    } catch (error) {
+      console.error(error);
     }
   });
   socket.on("addComment", (data) => {
@@ -201,6 +318,36 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.get("/api", (req, res) => {
+  Task.find()
+    .lean()
+    .then((tasks) => {
+      const pendingTasks = tasks.map((task) => {
+        return {
+          title: task.pending.title,
+          items: task.pending.items,
+        };
+      });
+      const ongoingTasks = tasks.map((task) => {
+        return {
+          title: task.ongoing.title,
+          items: task.ongoing.items,
+        };
+      });
+      const completedTasks = tasks.map((task) => {
+        return {
+          title: task.completed.title,
+          items: task.completed.items,
+        };
+      });
+      res.json({ pendingTasks, ongoingTasks, completedTasks });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.sendStatus(500);
+    });
+});
+
+app.get("/api1", (req, res) => {
   res.json(tasks);
 });
 

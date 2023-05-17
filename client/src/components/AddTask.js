@@ -6,6 +6,7 @@ const AddTask = ({ socket }) => {
   const handleAddTodo = (e) => {
     e.preventDefault();
     //👇🏻 sends the task to the Socket.io server
+    console.log(task);
     socket.emit("createTask", { task });
     setTask("");
   };

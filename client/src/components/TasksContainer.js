@@ -21,6 +21,13 @@ const TasksContainer = ({ socket }) => {
       destination.droppableId === source.droppableId
     )
       return;
+    destination.columnName = destination.droppableId;
+    source.columnName = source.droppableId;
+    const task = tasks[source.droppableId];
+    const itemId = task[0].items[source.index]._id;
+    const itemTitle = task[0].items[source.index].title;
+    source.droppableId = itemId;
+    source.title = itemTitle;
 
     socket.emit("taskDragged", {
       source,
@@ -29,7 +36,6 @@ const TasksContainer = ({ socket }) => {
   };
   useEffect(() => {
     socket.on("tasks", (data) => {
-      console.log("zmiana");
       setTasks(data);
     });
   }, [socket]);
@@ -37,47 +43,41 @@ const TasksContainer = ({ socket }) => {
   return (
     <div className="container">
       <DragDropContext onDragEnd={handleDragEnd}>
-        {Object.entries(tasks).map((task) => (
-          <div
-            className={`${task[1].title.toLowerCase()}__wrapper`}
-            key={task[1].title}
-          >
-            <h3>{task[1].title} Tasks</h3>
-            <div className={`${task[1].title.toLowerCase()}__container`}>
-              <Droppable droppableId={task[1].title}>
-                {(provided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps}>
-                    {task[1].items.map((item, index) => (
-                      <Draggable
-                        key={item.id}
-                        draggableId={item.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={`${task[1].title.toLowerCase()}__items`}
+        {Object.entries(tasks)?.map(([title, items]) => (
+          <div className={`${title.toLowerCase()}__wrapper`} key={title}>
+            <h3>{title} Tasks</h3>
+            <div className={`${title.toLowerCase()}__container`}>
+              {items ? (
+                <Droppable droppableId={title}>
+                  {(provided) => (
+                    <div ref={provided.innerRef} {...provided.droppableProps}>
+                      {items.map((item, index) =>
+                        item.items.map((subitem, subindex) => (
+                          <Draggable
+                            key={subitem._id}
+                            draggableId={subitem._id}
+                            index={subindex}
                           >
-                            <p>{item.title}</p>
-                            <p className="comment">
-                              <Link
-                                to={`/comments/${task[1].title}/${item.id}`}
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`${title.toLowerCase()}__items`}
                               >
-                                {item.comments.length > 0
-                                  ? `View Comments`
-                                  : "Add Comment"}
-                              </Link>
-                            </p>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
+                                <p>{subitem.title}</p>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))
+                      )}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              ) : (
+                <p>Loading tasks...</p> // lub inna wiadomość ładowania
+              )}
             </div>
           </div>
         ))}
@@ -85,5 +85,13 @@ const TasksContainer = ({ socket }) => {
     </div>
   );
 };
-
+{
+  /* <p className="comment">
+                              <Link to={`/comments/${title}/${item._id}`}>
+                                {item.comments.length > 0
+                                  ? `View Comments`
+                                  : "Add Comment"}
+                              </Link>
+                            </p> */
+}
 export default TasksContainer;
