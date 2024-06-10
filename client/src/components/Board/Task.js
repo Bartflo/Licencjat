@@ -2,7 +2,9 @@ import React from "react";
 import AddTask from "./AddTask";
 import TasksContainer from "./TasksContainer";
 import Nav from "./Nav";
-import { removeJwtToken } from "./auth/utils";
+import { removeJwtToken } from "../auth/utils";
+import "./board.css";
+import { t } from "../../translations/utils";
 // import socketIO from "socket.io-client";
 
 /*
@@ -18,7 +20,7 @@ const Task = ({ socket }) => {
   };
   return (
     <div>
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={handleLogout}>{t("logout")}</button>
       <Nav />
 
       <AddTask socket={socket} />

@@ -19,5 +19,12 @@
   "register-success": "You have successfully registered. You will be redirected to home page",
   "register-user-exist": "User with this name already exists",
   "login-error": "Invalid username or password",
-  "login-success": "You have successfully logged in. You will be redirected to home page"
+  "login-success": "You have successfully logged in. You will be redirected to home page",
+  "logout": "Logout",
+  "pendingTasks": "Pending",
+  "ongoingTasks": "Ongoing",
+  "completedTasks": "Completed",
+  "addNewTask": "Add new task",
+  "title": "Title",
+  "add": "Add"
 }

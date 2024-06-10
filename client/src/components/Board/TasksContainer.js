@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { t } from "../../translations/utils";
 
 const TasksContainer = ({ socket }) => {
   const [tasks, setTasks] = useState({});
@@ -45,7 +46,13 @@ const TasksContainer = ({ socket }) => {
       <DragDropContext onDragEnd={handleDragEnd}>
         {Object.entries(tasks)?.map(([title, items]) => (
           <div className={`${title.toLowerCase()}__wrapper`} key={title}>
-            <h3>{title} Tasks</h3>
+            <h3>
+              {title === "pendingTasks"
+                ? t("pendingTasks")
+                : title === "ongoingTasks"
+                ? t("ongoingTasks")
+                : t("completedTasks")}
+            </h3>
             <div className={`${title.toLowerCase()}__container`}>
               {items ? (
                 <Droppable droppableId={title}>
@@ -76,7 +83,7 @@ const TasksContainer = ({ socket }) => {
                   )}
                 </Droppable>
               ) : (
-                <p>Loading tasks...</p> // lub inna wiadomość ładowania
+                <p>Loading tasks...</p>
               )}
             </div>
           </div>

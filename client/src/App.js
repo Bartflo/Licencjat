@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { useState } from "react";
 // import Comments from "./components/Comments";
-import Task from "./components/Task";
+import Task from "./components/Board/Task";
 import { Login } from "./components/auth/Login";
 import { Register } from "./components/auth/Register";
 import socketIO from "socket.io-client";

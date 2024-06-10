@@ -19,5 +19,12 @@
   "register-success": "Rejestracja przebiegła pomyślnie. Zostaniesz przeniesiony na stronę główną",
   "register-user-exist": "Użytkownik o podanej nazwie już istnieje",
   "login-error": "Niepoprawna nazwa użytkownika lub hasło",
-  "login-success": "Zalogowano pomyślnie. Zostaniesz przeniesiony na stronę główną"
+  "login-success": "Zalogowano pomyślnie. Zostaniesz przeniesiony na stronę główną",
+  "logout": "Wyloguj",
+  "pendingTasks": "Oczekujące",
+  "ongoingTasks": "W trakcie",
+  "completedTasks": "Zakończone",
+  "addNewTask": "Dodaj zadanie",
+  "title": "Tytuł",
+  "add": "Dodaj"
 }
