@@ -16,7 +16,11 @@ import { debounce } from "lodash";
 import { DEBOUNCE_TIMEOUT, loginRegExp, passwordRegExp } from "./constants";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { AuthAlert } from "./AuthAlert";
-import { setUserNameInSessionStorage, setJwtToken } from "./utils";
+import {
+  setUserNameInSessionStorage,
+  setJwtToken,
+  setUserIdInSessionStorage,
+} from "./utils";
 import { LanguageSelect } from "../../translations/LanguageSelect";
 import { t } from "../../translations/utils";
 
@@ -85,6 +89,7 @@ export const Register = () => {
       })
       .then((json) => {
         setUserNameInSessionStorage(json.userName);
+        setUserIdInSessionStorage(json.userId);
         setJwtToken(json.token);
         console.log("user created", json);
         localStorage.setItem("userId", json.userName);

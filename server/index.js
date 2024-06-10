@@ -271,7 +271,12 @@ app.post("/api/register", async (req, res) => {
         },
         process.env.jwtkey
       );
-      return res.json({ status: "ok", token: token, userName: user.userName });
+      return res.json({
+        status: "ok",
+        token: token,
+        userName: user.userName,
+        userId: user._id,
+      });
     }
     if (!isUserNameValid) {
       res.status(400).json({ message: "wrong username" });
@@ -309,7 +314,12 @@ app.post("/api/login", async (req, res) => {
         process.env.jwtkey
       );
 
-      return res.json({ status: "ok", token: token, userName: user.userName });
+      return res.json({
+        status: "ok",
+        token: token,
+        userName: user.userName,
+        userId: user._id,
+      });
     }
   } catch (error) {
     console.log(error);
@@ -351,6 +361,15 @@ app.get("/api1", (req, res) => {
   res.json(tasks);
 });
 
+app.get("/api/boards", async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    const boards = await Task.find({ users: userId }).select("boardName");
+    res.status(200).json(boards);
+  } catch (error) {
+    res.status(400).json({ message: "Cannot get boards" });
+  }
+});
 server.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });

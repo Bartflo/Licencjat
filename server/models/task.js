@@ -11,6 +11,7 @@ const itemSchema = new mongoose.Schema({
 });
 
 const taskSchema = new mongoose.Schema({
+  boardName: { type: String, required: true },
   pending: {
     title: { type: String, default: "pending" },
     items: [itemSchema],
@@ -23,6 +24,7 @@ const taskSchema = new mongoose.Schema({
     title: { type: String, default: "completed" },
     items: [itemSchema],
   },
+  users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 const Task = mongoose.model("Task", taskSchema);

@@ -13,7 +13,11 @@ import {
 import { LanguageSelect } from "../../translations/LanguageSelect";
 import { t } from "../../translations/utils";
 import { debounce } from "lodash";
-import { setJwtToken, setUserNameInSessionStorage } from "./utils";
+import {
+  setJwtToken,
+  setUserNameInSessionStorage,
+  setUserIdInSessionStorage,
+} from "./utils";
 import { AuthAlert } from "./AuthAlert";
 import { DEBOUNCE_TIMEOUT } from "./constants";
 
@@ -52,6 +56,7 @@ export const Login = () => {
       .then((json) => {
         setJwtToken(json.token);
         setUserNameInSessionStorage(json.userName);
+        setUserIdInSessionStorage(json.userId);
         setSuccessAlertOpen(true);
         setTimeout(() => {
           window.location.reload();
