@@ -26,5 +26,7 @@
   "completedTasks": "Zakończone",
   "addNewTask": "Dodaj zadanie",
   "title": "Tytuł",
-  "add": "Dodaj"
+  "add": "Dodaj",
+  "workspaces": "Obszary robocze",
+  "dashboard": "Panel główny"
 }
