@@ -93,7 +93,7 @@ export const Navigation = ({ boards, window }) => {
                 key={board._id}
                 sx={{ pl: 4 }}
                 component={Link}
-                to={"/board"}
+                to={`/board/${board._id}`}
               >
                 <ListItemIcon>
                   <TableViewIcon />

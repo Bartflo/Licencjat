@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { t } from "../../translations/utils";
 
 const TasksContainer = ({ socket }) => {
   const [tasks, setTasks] = useState({});
-
+  const { boardId } = useParams();
   useEffect(() => {
     function fetchTasks() {
-      fetch("http://localhost:4000/api")
+      fetch(`http://localhost:4000/api/${boardId}`)
         .then((res) => res.json())
         .then((data) => setTasks(data));
     }
@@ -22,25 +22,29 @@ const TasksContainer = ({ socket }) => {
       destination.droppableId === source.droppableId
     )
       return;
-    destination.columnName = destination.droppableId;
-    source.columnName = source.droppableId;
-    const task = tasks[source.droppableId];
-    const itemId = task[0].items[source.index]._id;
-    const itemTitle = task[0].items[source.index].title;
-    source.droppableId = itemId;
-    source.title = itemTitle;
+
+    const updatedTasks = { ...tasks };
+
+    const sourceColumn = updatedTasks[source.droppableId];
+    const draggedItem = sourceColumn.items.splice(source.index, 1)[0];
+
+    const destinationColumn = updatedTasks[destination.droppableId];
+    destinationColumn.items.splice(destination.index, 0, draggedItem);
+
+    setTasks(updatedTasks);
 
     socket.emit("taskDragged", {
       source,
       destination,
+      boardId, // Przekaż również boardId do backendu
     });
   };
+
   useEffect(() => {
     socket.on("tasks", (data) => {
       setTasks(data);
     });
   }, [socket]);
-
   return (
     <div className="container">
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -54,30 +58,28 @@ const TasksContainer = ({ socket }) => {
                 : t("completedTasks")}
             </h3>
             <div className={`${title.toLowerCase()}__container`}>
-              {items ? (
+              {items && items.items ? (
                 <Droppable droppableId={title}>
                   {(provided) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}>
-                      {items.map((item, index) =>
-                        item.items.map((subitem, subindex) => (
-                          <Draggable
-                            key={subitem._id}
-                            draggableId={subitem._id}
-                            index={subindex}
-                          >
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`${title.toLowerCase()}__items`}
-                              >
-                                <p>{subitem.title}</p>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))
-                      )}
+                      {items.items.map((subitem, subindex) => (
+                        <Draggable
+                          key={subitem._id}
+                          draggableId={subitem._id}
+                          index={subindex}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`${title.toLowerCase()}__items`}
+                            >
+                              <p>{subitem.title}</p>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
                       {provided.placeholder}
                     </div>
                   )}

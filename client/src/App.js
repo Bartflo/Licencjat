@@ -24,7 +24,7 @@ function App() {
     const fetchBoards = async () => {
       try {
         const userId = getUserIdInSessionStorage();
-        const url = `http://localhost:4000/api/boards?userId=${userId}`;
+        const url = `http://localhost:4000/api/userBoards?userId=${userId}`;
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error("Network response was not ok fetching user boards");
@@ -54,7 +54,7 @@ function App() {
       >
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/board" element={<Board socket={socket} />} />
+          <Route path="/board/:boardId" element={<Board socket={socket} />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </Box>

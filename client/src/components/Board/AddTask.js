@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { t } from "../../translations/utils";
+import { useParams } from "react-router-dom";
 const AddTask = ({ socket }) => {
   const [task, setTask] = useState("");
-
+  const { boardId } = useParams();
   const handleAddTodo = (e) => {
     e.preventDefault();
     //👇🏻 sends the task to the Socket.io server
-    socket.emit("createTask", { task });
+    socket.emit("createTask", { task, boardId });
     setTask("");
   };
   return (
