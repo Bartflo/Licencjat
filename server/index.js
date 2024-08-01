@@ -323,6 +323,14 @@ app.get("/api/userBoards", async (req, res) => {
     res.status(400).json({ message: "Cannot get boards" });
   }
 });
+app.get("/api/users", async (req, res) => {
+  try {
+    const users = await User.find({}, "userName _id");
+    res.json(users);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
 
 app.get("/api/:boardId", (req, res) => {
   const { boardId } = req.params;

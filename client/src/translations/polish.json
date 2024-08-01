@@ -28,5 +28,6 @@
   "title": "Tytuł",
   "add": "Dodaj",
   "workspaces": "Obszary robocze",
-  "dashboard": "Panel główny"
+  "dashboard": "Panel główny",
+  "search-users": "Szukaj użytkowników"
 }

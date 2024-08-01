@@ -13,13 +13,15 @@ import {
   getJwtToken,
   getUserIdInSessionStorage,
 } from "./components/auth/utils";
-import { Box } from "@mui/material";
+import { Box, responsiveFontSizes } from "@mui/material";
 const socket = socketIO.connect("http://localhost:4000");
 
 function App() {
   const [activeLanguage, setActiveLanguage] = useState(getActiveLanguage());
 
   const [boards, setBoards] = useState([]);
+  const [users, setUsers] = useState([]);
+
   useEffect(() => {
     const fetchBoards = async () => {
       try {
@@ -36,6 +38,22 @@ function App() {
       }
     };
     fetchBoards();
+  }, []);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const url = "http://localhost:4000/api/users";
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("Network response was not ok fetching users");
+        }
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users: ", error);
+      }
+    };
+    fetchUsers();
   }, []);
 
   const user = getJwtToken();
@@ -54,7 +72,10 @@ function App() {
       >
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/board/:boardId" element={<Board socket={socket} />} />
+          <Route
+            path="/board/:boardId"
+            element={<Board socket={socket} users={users} />}
+          />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </Box>

@@ -13,7 +13,7 @@ const TasksContainer = ({ socket }) => {
         .then((data) => setTasks(data));
     }
     fetchTasks();
-  }, []);
+  }, [boardId]);
 
   const handleDragEnd = ({ destination, source }) => {
     if (!destination) return;
