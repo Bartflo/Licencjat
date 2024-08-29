@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import Button from "@mui/material/Button";
@@ -31,16 +31,44 @@ const AddUserToBoard = ({ users }) => {
   );
 };
 
-// Komponent modal z zakładkami
-export const ManageUsersModal = ({ open, onClose, users }) => {
+export const ManageUsersModal = ({ open, boardId, onClose, users }) => {
   const [value, setValue] = useState(0);
+
+  const [usersInBoard, setUsersInBoard] = useState({});
+  useEffect(() => {
+    function fetchUsersInBoard() {
+      fetch(`http://localhost:4000/api/boardUsers?boardId=${boardId}`)
+        .then((res) => res.json())
+        .then((data) => setUsersInBoard(data));
+    }
+    fetchUsersInBoard();
+  }, [boardId]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  const handleDelete = () => {
-    console.info("You clicked delete icon");
+  const handleDelete = async (userId) => {
+    try {
+      const response = await fetch("http://localhost:4000/api/boardUsers", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ boardId, userId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete user from board");
+      }
+
+      // Usuń użytkownika z listy lokalnie, aby odświeżyć stan bez potrzeby ponownego ładowania
+      setUsersInBoard((prevUsers) =>
+        prevUsers.filter((user) => user._id !== userId)
+      );
+    } catch (error) {
+      console.error("Error deleting user from board: ", error);
+    }
   };
 
   return (
@@ -56,14 +84,13 @@ export const ManageUsersModal = ({ open, onClose, users }) => {
           {value === 1 && (
             <Box>
               <ul style={{ listStyleType: "none" }}>
-                {users.map((user, index) => (
-                  // <li key={index}>{user.userName}</li>
-                  <li key={index} style={{ marginBottom: "0.5rem" }}>
+                {usersInBoard.map((user, index) => (
+                  <li key={user._id} style={{ marginBottom: "0.5rem" }}>
                     <Chip
                       key={index}
                       label={user.userName}
                       variant="outlined"
-                      onDelete={handleDelete}
+                      onDelete={() => handleDelete(user._id)}
                     />
                   </li>
                 ))}

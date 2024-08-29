@@ -323,6 +323,53 @@ app.get("/api/userBoards", async (req, res) => {
     res.status(400).json({ message: "Cannot get boards" });
   }
 });
+app.get("/api/boardUsers", async (req, res) => {
+  try {
+    const boardId = req.query.boardId;
+
+    const board = await Task.findById(boardId).select("users");
+
+    if (!board) {
+      return res.status(404).json({ message: "Board not found" });
+    }
+
+    const userIds = board.users.map((user) => user);
+    console.log(userIds);
+    const users = await User.find({ _id: { $in: userIds } }, "userName _id");
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Cannot get users for the board" });
+  }
+});
+app.delete("/api/boardUsers", async (req, res) => {
+  try {
+    const { boardId, userId } = req.body;
+
+    if (!boardId || !userId) {
+      return res
+        .status(400)
+        .json({ message: "Board ID and User ID are required" });
+    }
+
+    const board = await Task.findByIdAndUpdate(
+      boardId,
+      { $pull: { users: userId } },
+      { new: true }
+    );
+
+    if (!board) {
+      return res.status(404).json({ message: "Board not found" });
+    }
+
+    res.status(200).json({ message: "User removed from the board", board });
+  } catch (error) {
+    console.error("Error removing user from board: ", error);
+    res.status(500).json({ message: "Cannot remove user from the board" });
+  }
+});
+
 app.get("/api/users", async (req, res) => {
   try {
     const users = await User.find({}, "userName _id");

@@ -22,7 +22,12 @@ const Board = ({ socket, users }) => {
       <Button variant="contained" color="primary" onClick={handleClickOpen}>
         Otwórz modal
       </Button>
-      <ManageUsersModal open={openModal} onClose={handleClose} users={users} />
+      <ManageUsersModal
+        open={openModal}
+        boardId={boardId}
+        onClose={handleClose}
+        users={users}
+      />
       <TasksContainer socket={socket} boardId={boardId} />
     </>
   );
