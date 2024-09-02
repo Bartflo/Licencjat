@@ -29,5 +29,9 @@
   "add": "Dodaj",
   "workspaces": "Obszary robocze",
   "dashboard": "Panel główny",
-  "search-users": "Szukaj użytkowników"
+  "search-users": "Szukaj użytkowników",
+  "manage-users": "Zarządzaj użytkownikami",
+  "add-user": "Dodaj użytkownika",
+  "users-list": "Lista użytkowników",
+  "owner": "Właściciel"
 }

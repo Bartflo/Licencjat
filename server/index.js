@@ -333,13 +333,26 @@ app.get("/api/boardUsers", async (req, res) => {
       return res.status(404).json({ message: "Board not found" });
     }
 
-    const userIds = board.users.map((user) => user);
-    console.log(userIds);
-    const users = await User.find({ _id: { $in: userIds } }, "userName _id");
+    // Pobierz identyfikatory użytkowników z boardu
+    const userIds = board.users.map((user) => user.toString());
 
-    res.status(200).json(users);
+    // Pobierz użytkowników według identyfikatorów
+    const users = await User.find({ _id: { $in: userIds } }).lean();
+
+    // Utwórz mapę użytkowników według identyfikatorów
+    const userMap = new Map(users.map((user) => [user._id.toString(), user]));
+
+    // Posortuj użytkowników według kolejności w tablicy userIds
+    const sortedUsers = userIds.map((userId) => userMap.get(userId));
+
+    const result = sortedUsers.map((user) => ({
+      _id: user._id,
+      userName: user.userName,
+    }));
+
+    res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching users for the board: ", error);
     res.status(500).json({ message: "Cannot get users for the board" });
   }
 });
@@ -369,7 +382,31 @@ app.delete("/api/boardUsers", async (req, res) => {
     res.status(500).json({ message: "Cannot remove user from the board" });
   }
 });
+app.post("/api/boardUsers/add", async (req, res) => {
+  try {
+    const { boardId, users } = req.body;
 
+    if (!boardId || !Array.isArray(users) || users.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Board ID and users are required" });
+    }
+
+    const board = await Task.findByIdAndUpdate(
+      boardId,
+      { $addToSet: { users: { $each: users } } },
+      { new: true }
+    );
+    if (!board) {
+      return res.status(404).json({ message: "Board not found" });
+    }
+
+    res.status(200).json({ message: "Users added to the board", board });
+  } catch (error) {
+    console.error("Error adding users to board: ", error);
+    res.status(500).json({ message: "Cannot add users to the board" });
+  }
+});
 app.get("/api/users", async (req, res) => {
   try {
     const users = await User.find({}, "userName _id");

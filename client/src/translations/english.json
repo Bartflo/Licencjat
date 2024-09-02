@@ -29,5 +29,9 @@
   "add": "Add",
   "workspaces": "Workspaces",
   "dashboard": "Dashboard",
-  "search-users": "Search users"
+  "search-users": "Search users",
+  "manage-users": "Manage users",
+  "add-user": "Add user",
+  "users-list": "Users list",
+  "owner": "Owner"
 }
