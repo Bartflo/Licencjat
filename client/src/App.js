@@ -13,7 +13,7 @@ import {
   getJwtToken,
   getUserIdInSessionStorage,
 } from "./components/auth/utils";
-import { Box, responsiveFontSizes } from "@mui/material";
+import { Box } from "@mui/material";
 const socket = socketIO.connect("http://localhost:4000");
 
 function App() {
@@ -68,6 +68,7 @@ function App() {
           flexGrow: 1,
           bgcolor: "background.default",
           p: 3,
+          paddingTop: "64px",
         }}
       >
         <Routes>

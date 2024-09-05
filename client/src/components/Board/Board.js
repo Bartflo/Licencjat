@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import "./board.css";
 import { ManageUsersModal } from "./ManageUsersModal";
 import Button from "@mui/material/Button";
+import { t } from "../../translations/utils";
 
 const Board = ({ socket, users }) => {
   const { boardId } = useParams();
@@ -20,7 +21,7 @@ const Board = ({ socket, users }) => {
     <>
       <AddTask socket={socket} />
       <Button variant="contained" color="primary" onClick={handleClickOpen}>
-        Otwórz modal
+        {t("manage-users")}
       </Button>
       <ManageUsersModal
         open={openModal}
