@@ -2,10 +2,21 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { t } from "../../translations/utils";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Comments from "./Comments";
 
 const TasksContainer = ({ socket }) => {
   const [tasks, setTasks] = useState({});
+  const [open, setOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
   const { boardId } = useParams();
+
   useEffect(() => {
     function fetchTasks() {
       fetch(`http://localhost:4000/api/${boardId}`)
@@ -24,19 +35,16 @@ const TasksContainer = ({ socket }) => {
       return;
 
     const updatedTasks = { ...tasks };
-
     const sourceColumn = updatedTasks[source.droppableId];
     const draggedItem = sourceColumn.items.splice(source.index, 1)[0];
-
     const destinationColumn = updatedTasks[destination.droppableId];
     destinationColumn.items.splice(destination.index, 0, draggedItem);
-
     setTasks(updatedTasks);
 
     socket.emit("taskDragged", {
       source,
       destination,
-      boardId, // Przekaż również boardId do backendu
+      boardId,
     });
   };
 
@@ -45,6 +53,17 @@ const TasksContainer = ({ socket }) => {
       setTasks(data);
     });
   }, [socket]);
+
+  const handleOpenComments = (task) => {
+    setSelectedTask(task);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedTask(null);
+  };
+
   return (
     <div className="container">
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -76,6 +95,20 @@ const TasksContainer = ({ socket }) => {
                               className={`${title.toLowerCase()}__items`}
                             >
                               <p>{subitem.title}</p>
+                              <p
+                                className="comment"
+                                onClick={() =>
+                                  handleOpenComments({
+                                    ...subitem,
+                                    category: title,
+                                  })
+                                }
+                                style={{ cursor: "pointer", color: "blue" }}
+                              >
+                                {subitem.comments.length > 0
+                                  ? `View Comments`
+                                  : "Add Comment"}
+                              </p>
                             </div>
                           )}
                         </Draggable>
@@ -91,16 +124,52 @@ const TasksContainer = ({ socket }) => {
           </div>
         ))}
       </DragDropContext>
+
+      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xl">
+        <DialogTitle>
+          {selectedTask ? selectedTask.title : "Comments"}
+        </DialogTitle>
+        <DialogContent>
+          {selectedTask && (
+            <Box display="flex" height="100%">
+              <Box flex={1} p={2} borderRight="1px solid #ccc">
+                <Typography variant="h6">Task Description</Typography>
+                <Typography variant="body1">
+                  {selectedTask.description}
+                </Typography>
+              </Box>
+
+              <Box
+                flex={1}
+                p={2}
+                style={{
+                  overflowY: "auto",
+                  maxHeight: "80vh",
+                  scrollbarWidth: "none", // For Firefox
+                  msOverflowStyle: "none", // For Internet Explorer and Edge
+                }}
+                sx={{
+                  "&::-webkit-scrollbar": {
+                    display: "none", // For Chrome, Safari, and Opera
+                  },
+                }}
+              >
+                <Comments
+                  socket={socket}
+                  boardId={boardId}
+                  category={selectedTask.category}
+                  id={selectedTask._id}
+                />
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
-{
-  /* <p className="comment">
-                              <Link to={`/comments/${title}/${item._id}`}>
-                                {item.comments.length > 0
-                                  ? `View Comments`
-                                  : "Add Comment"}
-                              </Link>
-                            </p> */
-}
+
 export default TasksContainer;

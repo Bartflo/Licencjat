@@ -87,7 +87,6 @@ socketIO.on("connection", (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
 
   socket.on("createTask", async (data) => {
-    console.log(data);
     if (!data || !data.boardId || !data.task) {
       return console.error("Invalid data provided for createTask event.");
     }
@@ -220,19 +219,68 @@ socketIO.on("connection", (socket) => {
       console.error(error);
     }
   });
-  socket.on("addComment", (data) => {
-    const taskItems = tasks[data.category].items;
-    for (let i = 0; i < taskItems.length; i++) {
-      if (taskItems[i].id === data.id) {
-        taskItems[i].comments.push({
-          name: data.userId,
-          text: data.comment,
-          id: fetchID(),
-        });
-        socketIO.emit("comments", taskItems[i].comments);
+  socket.on("addComment", async (data) => {
+    const { boardId, category, id, comment, userId } = data;
+    const trimmedCategory = category.replace("Tasks", "").toLowerCase(); // "pendingTasks" -> "pending"
+
+    try {
+      const taskBoard = await Task.findOne({
+        _id: boardId,
+        [`${trimmedCategory}.items._id`]: id,
+      });
+
+      if (!taskBoard) {
+        console.error("Task board not found:", data);
+        return;
       }
+
+      const updatedTask = await Task.findOneAndUpdate(
+        { [`${trimmedCategory}.items._id`]: id },
+        {
+          $push: {
+            [`${trimmedCategory}.items.$.comments`]: {
+              name: userId,
+              text: comment,
+            },
+          },
+        },
+        { new: true }
+      );
+
+      const taskComments = updatedTask[trimmedCategory].items.find(
+        (item) => item._id.toString() === id
+      ).comments;
+
+      socket.emit("comments", taskComments);
+    } catch (error) {
+      console.error("Error adding comment:", error);
     }
   });
+  socket.on("fetchComments", async (data) => {
+    const { boardId, category, id } = data;
+
+    const trimmedCategory = category.replace("Tasks", "").toLowerCase(); // "pendingTasks" -> "pending"
+
+    try {
+      const taskBoard = await Task.findOne({
+        _id: boardId,
+        [`${trimmedCategory}.items._id`]: id,
+      });
+      if (!taskBoard) {
+        console.error("Task not found");
+        return;
+      }
+
+      const taskComments = taskBoard[trimmedCategory].items.find(
+        (item) => item._id.toString() === id
+      ).comments;
+
+      socket.emit("comments", taskComments);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  });
+
   socket.on("disconnect", () => {
     socket.disconnect();
     console.log("🔥: A user disconnected");
