@@ -5,28 +5,61 @@ import { useParams } from "react-router-dom";
 import "./board.css";
 import { ManageUsersModal } from "./ManageUsersModal";
 import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 import { t } from "../../translations/utils";
 
 const Board = ({ socket, users }) => {
   const { boardId } = useParams();
 
-  const [openModal, setOpenModal] = useState(false);
-  const handleClickOpen = () => {
-    setOpenModal(true);
+  const [openManageUsersModal, setOpenManageUsersModal] = useState(false);
+  const [openAddTaskModal, setOpenAddTaskModal] = useState(false);
+  const handleClickOpenManageUsers = () => {
+    setOpenManageUsersModal(true);
   };
-  const handleClose = () => {
-    setOpenModal(false);
+  const handleCloseManageUsers = () => {
+    setOpenManageUsersModal(false);
   };
+  const handleClickOpenAddTask = () => {
+    setOpenAddTaskModal(true);
+  };
+  const handleCloseAddTask = () => {
+    setOpenAddTaskModal(false);
+  };
+
   return (
     <>
-      <AddTask socket={socket} />
-      <Button variant="contained" color="primary" onClick={handleClickOpen}>
-        {t("manage-users")}
-      </Button>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: 5,
+          gap: 2,
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleClickOpenAddTask}
+        >
+          {t("addNewTask")}
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleClickOpenManageUsers}
+        >
+          {t("manage-users")}
+        </Button>
+      </Box>
+      <AddTask
+        socket={socket}
+        open={openAddTaskModal}
+        onClose={handleCloseAddTask}
+      />
       <ManageUsersModal
-        open={openModal}
+        open={openManageUsersModal}
         boardId={boardId}
-        onClose={handleClose}
+        onClose={handleCloseManageUsers}
         users={users}
       />
       <TasksContainer socket={socket} boardId={boardId} />

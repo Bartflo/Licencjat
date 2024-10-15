@@ -10,6 +10,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Comments from "./Comments";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { Divider } from "@mui/material";
 
 const TasksContainer = ({ socket }) => {
   const [tasks, setTasks] = useState({});
@@ -105,9 +107,10 @@ const TasksContainer = ({ socket }) => {
                                 }
                                 style={{ cursor: "pointer", color: "blue" }}
                               >
-                                {subitem.comments.length > 0
-                                  ? `View Comments`
-                                  : "Add Comment"}
+                                <SettingsIcon
+                                  fontSize="medium"
+                                  sx={{ color: "black" }}
+                                />
                               </p>
                             </div>
                           )}
@@ -133,7 +136,8 @@ const TasksContainer = ({ socket }) => {
           {selectedTask && (
             <Box display="flex" height="100%">
               <Box flex={1} p={2} borderRight="1px solid #ccc">
-                <Typography variant="h6">Task Description</Typography>
+                <Typography variant="h6">{t("task-description")}</Typography>
+                <Divider />
                 <Typography variant="body1">
                   {selectedTask.description}
                 </Typography>
@@ -165,7 +169,7 @@ const TasksContainer = ({ socket }) => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Close</Button>
+          <Button onClick={handleClose}>{t("close")}</Button>
         </DialogActions>
       </Dialog>
     </div>

@@ -3,10 +3,12 @@ const mongoose = require("mongoose");
 const commentSchema = new mongoose.Schema({
   name: { type: String },
   text: { type: String },
+  time: { type: Date, default: Date.now },
 });
 
 const itemSchema = new mongoose.Schema({
   title: { type: String, required: true },
+  description: { type: String },
   comments: [commentSchema],
 });
 

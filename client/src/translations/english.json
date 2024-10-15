@@ -33,5 +33,17 @@
   "manage-users": "Manage users",
   "add-user": "Add user",
   "users-list": "Users list",
-  "owner": "Owner"
+  "owner": "Owner",
+  "close": "Close",
+  "add-comment": "Add comment",
+  "cancel": "Cancel",
+  "submit": "Submit",
+  "please-enter-comment-below": "Please enter your comment below",
+  "comment": "Comment",
+  "comments": "Comments",
+  "no-comments-available": "No comments available",
+  "task-name": "Task name",
+  "description": "Description",
+  "content": "Content",
+  "task-description": "Task description"
 }

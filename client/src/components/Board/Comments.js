@@ -9,8 +9,10 @@ import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
 import { blue } from "@mui/material/colors";
 import { Divider } from "@mui/material";
+import { t } from "../../translations/utils";
 
 const Comments = ({ socket, boardId, category, id }) => {
   const [comment, setComment] = useState(""); // State for new comment input
@@ -37,7 +39,7 @@ const Comments = ({ socket, boardId, category, id }) => {
       comment,
       category,
       id,
-      userId: localStorage.getItem("userId"),
+      userId: sessionStorage.getItem("username"),
     });
 
     setComment(""); // Clear the comment input
@@ -53,23 +55,33 @@ const Comments = ({ socket, boardId, category, id }) => {
   return (
     <div className="comments__container">
       {/* Button to open the dialog */}
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Add a Comment
-      </Button>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "20px",
+        }}
+      >
+        <h2>{t("comments")}</h2>
+
+        <Button variant="outlined" onClick={handleClickOpen}>
+          {t("add-comment")}
+        </Button>
+      </Box>
 
       {/* Dialog for adding a comment */}
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Add a Comment</DialogTitle>
+        <DialogTitle>{t("add-comment")}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Please enter your comment below:
+            {t("please-enter-comment-below")}
           </DialogContentText>
           <form onSubmit={addComment}>
             <TextField
               autoFocus
               margin="dense"
               id="comment"
-              label="Comment"
+              label={t("comment")}
               type="text"
               fullWidth
               multiline
@@ -81,13 +93,12 @@ const Comments = ({ socket, boardId, category, id }) => {
           </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>{t("cancel")}</Button>
           <Button onClick={addComment} type="submit">
-            Submit Comment
+            {t("submit")}
           </Button>
         </DialogActions>
       </Dialog>
-      <h2>Existing Comments</h2>
       {/* Section to display existing comments */}
       <Paper style={{ padding: "40px 20px" }}>
         {commentList.length > 0 ? (
@@ -105,8 +116,15 @@ const Comments = ({ socket, boardId, category, id }) => {
                   </h4>
                   <p style={{ textAlign: "left" }}>{comment.text}</p>
                   <p style={{ textAlign: "left", color: "gray" }}>
-                    posted {comment.timeAgo}{" "}
-                    {/* Jeśli masz informację o czasie publikacji */}
+                    posted{" "}
+                    {new Date(comment.time).toLocaleString("pl-PL", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}
                   </p>
                 </Grid>
               </Grid>
@@ -116,7 +134,7 @@ const Comments = ({ socket, boardId, category, id }) => {
             </React.Fragment>
           ))
         ) : (
-          <p>No comments available</p>
+          <p>{t("no-comments-available")}</p>
         )}
       </Paper>
     </div>

@@ -33,5 +33,17 @@
   "manage-users": "Zarządzaj użytkownikami",
   "add-user": "Dodaj użytkownika",
   "users-list": "Lista użytkowników",
-  "owner": "Właściciel"
+  "owner": "Właściciel",
+  "close": "Zamknij",
+  "add-comment": "Dodaj komentarz",
+  "cancel": "Anuluj",
+  "submit": "Zatwierdź",
+  "please-enter-comment-below": "Proszę wprowadź twój komentarz poniżej",
+  "comment": "Komentarz",
+  "comments": "Komentarze",
+  "no-comments-available": "Brak dostępnych komentarzy",
+  "task-name": "Nazwa zadania",
+  "description": "Opis",
+  "content": "Treść",
+  "task-description": "Opis zadania"
 }

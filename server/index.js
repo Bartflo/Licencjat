@@ -91,8 +91,8 @@ socketIO.on("connection", (socket) => {
       return console.error("Invalid data provided for createTask event.");
     }
 
-    const { boardId, task } = data;
-    const newTask = { title: task, comments: [] };
+    const { boardId, task, description } = data;
+    const newTask = { title: task, description: description, comments: [] };
 
     try {
       const updatedTask = await Task.findOneAndUpdate(
