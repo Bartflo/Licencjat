@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -17,6 +17,7 @@ import {
   IconButton,
   Button,
   Collapse,
+  Switch,
 } from "@mui/material";
 import { Dashboard } from "@mui/icons-material";
 import WorkspacesIcon from "@mui/icons-material/Workspaces";
@@ -28,11 +29,13 @@ import TableViewIcon from "@mui/icons-material/TableView";
 import { LanguageSelect } from "../../translations/LanguageSelect";
 import { removeJwtToken } from "../auth/utils";
 import { t } from "../../translations/utils";
+import { ThemeContext } from "../../contexts/ThemeContext";
 const drawerWidth = 240;
 
 export const Navigation = ({ boards, window }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const { darkMode, toggleDarkMode } = useContext(ThemeContext);
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -105,6 +108,9 @@ export const Navigation = ({ boards, window }) => {
         </Collapse>
         <ListItem>
           <LanguageSelect />
+        </ListItem>
+        <ListItem>
+          <Switch checked={darkMode} onChange={toggleDarkMode} />
         </ListItem>
         <ListItem>
           <Button variant="outlined" onClick={handleLogout}>

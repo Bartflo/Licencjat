@@ -14,6 +14,8 @@ import {
   getUserIdInSessionStorage,
 } from "./components/auth/utils";
 import { Box } from "@mui/material";
+import ThemeContextProvider from "./contexts/ThemeContext";
+import { ThemeContext } from "./contexts/ThemeContext";
 const socket = socketIO.connect("http://localhost:4000");
 
 function App() {
@@ -90,9 +92,11 @@ function App() {
   );
 
   return (
-    <LanguageContext.Provider value={{ activeLanguage, setActiveLanguage }}>
-      <BrowserRouter>{routes}</BrowserRouter>
-    </LanguageContext.Provider>
+    <ThemeContextProvider>
+      <LanguageContext.Provider value={{ activeLanguage, setActiveLanguage }}>
+        <BrowserRouter>{routes}</BrowserRouter>
+      </LanguageContext.Provider>
+    </ThemeContextProvider>
   );
 }
 
