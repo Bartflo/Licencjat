@@ -45,5 +45,6 @@
   "task-name": "Nazwa zadania",
   "description": "Opis",
   "content": "Treść",
-  "task-description": "Opis zadania"
+  "task-description": "Opis zadania",
+  "posted": "Opublikowano"
 }

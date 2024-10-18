@@ -11,7 +11,7 @@ import Grid from "@mui/material/Grid";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import { blue } from "@mui/material/colors";
-import { Divider } from "@mui/material";
+import { Divider, Typography } from "@mui/material";
 import { t } from "../../translations/utils";
 
 const Comments = ({ socket, boardId, category, id }) => {
@@ -62,9 +62,9 @@ const Comments = ({ socket, boardId, category, id }) => {
           marginTop: "20px",
         }}
       >
-        <h2>{t("comments")}</h2>
+        <Typography variant="h5">{t("comments")}</Typography>
 
-        <Button variant="outlined" onClick={handleClickOpen}>
+        <Button variant="outlined" size="small" onClick={handleClickOpen}>
           {t("add-comment")}
         </Button>
       </Box>
@@ -116,7 +116,7 @@ const Comments = ({ socket, boardId, category, id }) => {
                   </h4>
                   <p style={{ textAlign: "left" }}>{comment.text}</p>
                   <p style={{ textAlign: "left", color: "gray" }}>
-                    posted{" "}
+                    {t("posted")}{" "}
                     {new Date(comment.time).toLocaleString("pl-PL", {
                       day: "2-digit",
                       month: "2-digit",

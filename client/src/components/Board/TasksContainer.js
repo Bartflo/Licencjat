@@ -11,7 +11,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Comments from "./Comments";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { Divider } from "@mui/material";
+import { Divider, Card, CardContent, IconButton } from "@mui/material";
 
 const TasksContainer = ({ socket }) => {
   const [tasks, setTasks] = useState({});
@@ -66,18 +66,31 @@ const TasksContainer = ({ socket }) => {
     setSelectedTask(null);
   };
 
+  const getCardColor = (category) => {
+    switch (category) {
+      case "pendingTasks":
+        return "#909396";
+      case "ongoingTasks":
+        return "#03a9f4";
+      case "completedTasks":
+        return "#4caf50";
+      default:
+        return "#ffffff";
+    }
+  };
+
   return (
     <div className="container">
       <DragDropContext onDragEnd={handleDragEnd}>
         {Object.entries(tasks)?.map(([title, items]) => (
           <div className={`${title.toLowerCase()}__wrapper`} key={title}>
-            <h3>
+            <Typography variant="h5" gutterBottom>
               {title === "pendingTasks"
                 ? t("pendingTasks")
                 : title === "ongoingTasks"
                 ? t("ongoingTasks")
                 : t("completedTasks")}
-            </h3>
+            </Typography>
             <div className={`${title.toLowerCase()}__container`}>
               {items && items.items ? (
                 <Droppable droppableId={title}>
@@ -90,29 +103,37 @@ const TasksContainer = ({ socket }) => {
                           index={subindex}
                         >
                           {(provided) => (
-                            <div
+                            <Card
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={`${title.toLowerCase()}__items`}
+                              sx={{
+                                marginBottom: 2,
+                                backgroundColor: getCardColor(title),
+                              }}
                             >
-                              <p>{subitem.title}</p>
-                              <p
-                                className="comment"
-                                onClick={() =>
-                                  handleOpenComments({
-                                    ...subitem,
-                                    category: title,
-                                  })
-                                }
-                                style={{ cursor: "pointer", color: "blue" }}
-                              >
-                                <SettingsIcon
-                                  fontSize="medium"
-                                  sx={{ color: "black" }}
-                                />
-                              </p>
-                            </div>
+                              <CardContent>
+                                <Box
+                                  display="flex"
+                                  justifyContent="space-between"
+                                >
+                                  <Typography variant="subtitle2">
+                                    {subitem.title}
+                                  </Typography>
+                                  <IconButton
+                                    onClick={() =>
+                                      handleOpenComments({
+                                        ...subitem,
+                                        category: title,
+                                      })
+                                    }
+                                    sx={{ color: "primary" }}
+                                  >
+                                    <SettingsIcon fontSize="medium" />
+                                  </IconButton>
+                                </Box>
+                              </CardContent>
+                            </Card>
                           )}
                         </Draggable>
                       ))}
@@ -121,7 +142,7 @@ const TasksContainer = ({ socket }) => {
                   )}
                 </Droppable>
               ) : (
-                <p>Loading tasks...</p>
+                <Typography variant="body1">Loading tasks...</Typography>
               )}
             </div>
           </div>

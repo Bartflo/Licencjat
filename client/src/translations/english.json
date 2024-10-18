@@ -45,5 +45,6 @@
   "task-name": "Task name",
   "description": "Description",
   "content": "Content",
-  "task-description": "Task description"
+  "task-description": "Task description",
+  "posted": "Posted"
 }
