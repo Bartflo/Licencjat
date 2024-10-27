@@ -1,0 +1,33 @@
+const mongoose = require("mongoose");
+
+const commentSchema = new mongoose.Schema({
+  name: { type: String },
+  text: { type: String },
+  time: { type: Date, default: Date.now },
+});
+
+const itemSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  comments: [commentSchema],
+});
+
+const taskSchema = new mongoose.Schema({
+  boardName: { type: String, required: true },
+  pending: {
+    title: { type: String, default: "pending" },
+    items: [itemSchema],
+  },
+  ongoing: {
+    title: { type: String, default: "ongoing" },
+    items: [itemSchema],
+  },
+  completed: {
+    title: { type: String, default: "completed" },
+    items: [itemSchema],
+  },
+  users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+});
+
+const Task = mongoose.model("Task", taskSchema);
+module.exports = Task;
