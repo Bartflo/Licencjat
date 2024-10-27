@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useContext, useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import {
   Drawer,
   Box,
@@ -53,6 +52,22 @@ export const Navigation = ({ boards, window }) => {
   };
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [currentBoardName, setCurrentBoardName] = useState(t("dashboard"));
+
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === "/dashboard") {
+      setCurrentBoardName(t("dashboard"));
+    } else {
+      const boardId = path.split("/board/")[1];
+      const board = boards.find((b) => b._id === boardId);
+      if (board) {
+        setCurrentBoardName(board.boardName);
+      }
+    }
+  }, [location, boards]);
+
   const handleLogout = () => {
     removeJwtToken();
     setTimeout(() => {
@@ -152,7 +167,7 @@ export const Navigation = ({ boards, window }) => {
             component="div"
             sx={{ flexGrow: 1, textAlign: "center" }}
           >
-            Responsive drawer
+            {currentBoardName}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -161,7 +176,6 @@ export const Navigation = ({ boards, window }) => {
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
         aria-label="mailbox folders"
       >
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Drawer
           variant="temporary"
           open={mobileOpen}

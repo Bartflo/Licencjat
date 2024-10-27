@@ -46,5 +46,11 @@
   "description": "Description",
   "content": "Content",
   "task-description": "Task description",
-  "posted": "Posted"
+  "posted": "Posted",
+  "workspace": "Workspace",
+  "goto-workspace": "Go to workspace",
+  "workspace-name": "Workspace name",
+  "add-new-workspace": "Add new workspace",
+  "edit": "Edit",
+  "delete-workspace": "Delete workspace"
 }

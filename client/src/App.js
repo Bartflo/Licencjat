@@ -74,7 +74,7 @@ function App() {
         }}
       >
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard users={users} />} />
           <Route
             path="/board/:boardId"
             element={<Board socket={socket} users={users} />}

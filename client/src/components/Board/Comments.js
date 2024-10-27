@@ -15,25 +15,21 @@ import { Divider, Typography } from "@mui/material";
 import { t } from "../../translations/utils";
 
 const Comments = ({ socket, boardId, category, id }) => {
-  const [comment, setComment] = useState(""); // State for new comment input
-  const [commentList, setCommentList] = useState([]); // State for storing comments
-  const [open, setOpen] = useState(false); // Dialog open state
+  const [comment, setComment] = useState("");
+  const [commentList, setCommentList] = useState([]);
+  const [open, setOpen] = useState(false);
 
-  // Open the dialog to add a comment
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  // Close the dialog
   const handleClose = () => {
     setOpen(false);
   };
 
-  // Emit the comment data to the server and close the dialog
   const addComment = (e) => {
     e.preventDefault();
 
-    // Send the comment, category, task id, and userId through the socket
     socket.emit("addComment", {
       boardId,
       comment,
@@ -42,19 +38,17 @@ const Comments = ({ socket, boardId, category, id }) => {
       userId: sessionStorage.getItem("username"),
     });
 
-    setComment(""); // Clear the comment input
-    handleClose(); // Close the dialog after submitting
+    setComment("");
+    handleClose();
   };
 
-  // Fetch comments when the component mounts or when category/id changes
   useEffect(() => {
-    socket.on("comments", (data) => setCommentList(data)); // Update comment list when received from the socket
-    socket.emit("fetchComments", { boardId, category, id }); // Request comments from the server
+    socket.on("comments", (data) => setCommentList(data));
+    socket.emit("fetchComments", { boardId, category, id });
   }, [boardId, category, id, socket]);
 
   return (
     <div className="comments__container">
-      {/* Button to open the dialog */}
       <Box
         sx={{
           display: "flex",
@@ -68,8 +62,6 @@ const Comments = ({ socket, boardId, category, id }) => {
           {t("add-comment")}
         </Button>
       </Box>
-
-      {/* Dialog for adding a comment */}
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>{t("add-comment")}</DialogTitle>
         <DialogContent>
@@ -99,7 +91,6 @@ const Comments = ({ socket, boardId, category, id }) => {
           </Button>
         </DialogActions>
       </Dialog>
-      {/* Section to display existing comments */}
       <Paper style={{ padding: "40px 20px" }}>
         {commentList.length > 0 ? (
           commentList.map((comment, index) => (

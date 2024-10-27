@@ -7,12 +7,14 @@ import { ManageUsersModal } from "./ManageUsersModal";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { t } from "../../translations/utils";
+import DeleteBoard from "./DeleteBoard";
 
 const Board = ({ socket, users }) => {
   const { boardId } = useParams();
 
   const [openManageUsersModal, setOpenManageUsersModal] = useState(false);
   const [openAddTaskModal, setOpenAddTaskModal] = useState(false);
+  const [openDeleteBoardModal, setOpenDeleteBoardModal] = useState(false);
   const handleClickOpenManageUsers = () => {
     setOpenManageUsersModal(true);
   };
@@ -25,7 +27,12 @@ const Board = ({ socket, users }) => {
   const handleCloseAddTask = () => {
     setOpenAddTaskModal(false);
   };
-
+  const handleClickDeleteBoard = () => {
+    setOpenDeleteBoardModal(true);
+  };
+  const handleCloseDeleteBoard = () => {
+    setOpenDeleteBoardModal(false);
+  };
   return (
     <>
       <Box
@@ -50,6 +57,13 @@ const Board = ({ socket, users }) => {
         >
           {t("manage-users")}
         </Button>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={handleClickDeleteBoard}
+        >
+          {t("delete-workspace")}
+        </Button>
       </Box>
       <AddTask
         socket={socket}
@@ -61,6 +75,10 @@ const Board = ({ socket, users }) => {
         boardId={boardId}
         onClose={handleCloseManageUsers}
         users={users}
+      />
+      <DeleteBoard
+        open={openDeleteBoardModal}
+        onClose={handleCloseDeleteBoard}
       />
       <TasksContainer socket={socket} boardId={boardId} />
     </>

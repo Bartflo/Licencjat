@@ -9,6 +9,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
 import Comments from "./Comments";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Divider, Card, CardContent, IconButton } from "@mui/material";
@@ -17,6 +18,8 @@ const TasksContainer = ({ socket }) => {
   const [tasks, setTasks] = useState({});
   const [open, setOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [description, setDescription] = useState("");
   const { boardId } = useParams();
 
   useEffect(() => {
@@ -58,12 +61,53 @@ const TasksContainer = ({ socket }) => {
 
   const handleOpenComments = (task) => {
     setSelectedTask(task);
+    setDescription(task.description);
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
     setSelectedTask(null);
+    setEditMode(false);
+  };
+
+  const handleEditDescription = () => {
+    setEditMode(true);
+  };
+
+  const handleSaveDescription = async () => {
+    try {
+      const response = await fetch("http://localhost:4000/api/editTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          boardId,
+          taskId: selectedTask._id,
+          description,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update task description");
+      }
+
+      const updatedTask = await response.json();
+      setTasks((prevTasks) => {
+        const updatedTasks = { ...prevTasks };
+        const category = selectedTask.category;
+        const taskIndex = updatedTasks[category].items.findIndex(
+          (item) => item._id === selectedTask._id
+        );
+        updatedTasks[category].items[taskIndex] = updatedTask;
+        return updatedTasks;
+      });
+
+      setEditMode(false);
+    } catch (error) {
+      console.error("Error updating task description:", error);
+    }
   };
 
   const getCardColor = (category) => {
@@ -159,9 +203,29 @@ const TasksContainer = ({ socket }) => {
               <Box flex={1} p={2} borderRight="1px solid #ccc">
                 <Typography variant="h6">{t("task-description")}</Typography>
                 <Divider />
-                <Typography variant="body1">
-                  {selectedTask.description}
-                </Typography>
+                {editMode ? (
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={4}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                ) : (
+                  <Typography variant="body1">
+                    {selectedTask.description}
+                  </Typography>
+                )}
+                <Button
+                  onClick={
+                    editMode ? handleSaveDescription : handleEditDescription
+                  }
+                  variant="contained"
+                  color="primary"
+                  sx={{ marginTop: 2 }}
+                >
+                  {editMode ? t("submit") : t("edit")}
+                </Button>
               </Box>
 
               <Box

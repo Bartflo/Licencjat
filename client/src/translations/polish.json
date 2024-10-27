@@ -46,5 +46,11 @@
   "description": "Opis",
   "content": "Treść",
   "task-description": "Opis zadania",
-  "posted": "Opublikowano"
+  "posted": "Opublikowano",
+  "workspace": "Obszar roboczy",
+  "goto-workspace": "Przejdź do obszaru roboczego",
+  "workspace-name": "Nazwa obszaru roboczego",
+  "add-new-workspace": "Dodaj nowy obszar roboczy",
+  "edit": "Edytuj",
+  "delete-workspace": "Usuń obszar roboczy"
 }

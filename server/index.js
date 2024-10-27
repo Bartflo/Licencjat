@@ -36,53 +36,6 @@ const socketIO = new Server(server, {
   },
 });
 
-const fetchID = () => Math.random().toString(36).substring(2, 10);
-
-let tasks = {
-  pending: {
-    title: "pending",
-    items: [
-      {
-        id: fetchID(),
-        title: "Send the Figma file to Dima",
-        comments: [],
-      },
-    ],
-  },
-  ongoing: {
-    title: "ongoing",
-    items: [
-      {
-        id: fetchID(),
-        title: "Review GitHub issues",
-        comments: [
-          {
-            name: "David",
-            text: "Ensure you review before merging",
-            id: fetchID(),
-          },
-        ],
-      },
-    ],
-  },
-  completed: {
-    title: "completed",
-    items: [
-      {
-        id: fetchID(),
-        title: "Create technical contents",
-        comments: [
-          {
-            name: "Dima",
-            text: "Make sure you check the requirements",
-            id: fetchID(),
-          },
-        ],
-      },
-    ],
-  },
-};
-
 socketIO.on("connection", (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
 
@@ -134,10 +87,7 @@ socketIO.on("connection", (socket) => {
     const { source, destination, boardId } = data;
 
     try {
-      // Pobieramy aktualne zadania z tablicami items
       const board = await Task.findById(boardId).lean();
-
-      // Sprawdzamy, czy mamy poprawnie załadowane zadania
       if (!board) {
         console.log("Board not found");
         return;
@@ -362,11 +312,148 @@ app.post("/api/login", async (req, res) => {
     return res.status(400).json({ message: "Something went wrong" });
   }
 });
+app.post("/api/editTask", async (req, res) => {
+  const { boardId, taskId, description } = req.body;
+
+  if (!boardId || !taskId || !description) {
+    return res.status(400).json({ message: "Invalid data provided" });
+  }
+
+  try {
+    const taskBoard = await Task.findOneAndUpdate(
+      { _id: boardId, "pending.items._id": taskId },
+      { $set: { "pending.items.$.description": description } },
+      { new: true }
+    );
+
+    if (!taskBoard) {
+      const taskBoardOngoing = await Task.findOneAndUpdate(
+        { _id: boardId, "ongoing.items._id": taskId },
+        { $set: { "ongoing.items.$.description": description } },
+        { new: true }
+      );
+
+      if (!taskBoardOngoing) {
+        const taskBoardCompleted = await Task.findOneAndUpdate(
+          { _id: boardId, "completed.items._id": taskId },
+          { $set: { "completed.items.$.description": description } },
+          { new: true }
+        );
+
+        if (!taskBoardCompleted) {
+          return res.status(404).json({ message: "Task not found" });
+        }
+
+        return res.json(
+          taskBoardCompleted.completed.items.find(
+            (item) => item._id.toString() === taskId
+          )
+        );
+      }
+
+      return res.json(
+        taskBoardOngoing.ongoing.items.find(
+          (item) => item._id.toString() === taskId
+        )
+      );
+    }
+
+    return res.json(
+      taskBoard.pending.items.find((item) => item._id.toString() === taskId)
+    );
+  } catch (error) {
+    console.error("Error updating task description:", error);
+    res.status(500).json({ message: "Error updating task description" });
+  }
+});
+app.post("/api/createBoard", async (req, res) => {
+  try {
+    const { boardName, users } = req.body;
+
+    if (!boardName || !users || users.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Board name and users are required" });
+    }
+
+    const newBoard = new Task({
+      boardName,
+      pending: {
+        title: "pending",
+        items: [],
+      },
+      ongoing: {
+        title: "ongoing",
+        items: [],
+      },
+      completed: {
+        title: "completed",
+        items: [],
+      },
+      users,
+    });
+    const savedBoard = await newBoard.save();
+    res.status(201).json({
+      message: "Board created successfully",
+      board: {
+        _id: savedBoard._id,
+        boardName: savedBoard.boardName,
+        pending: savedBoard.pending,
+        ongoing: savedBoard.ongoing,
+        completed: savedBoard.completed,
+        users: savedBoard.users,
+      },
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error creating board", error: error.message });
+  }
+});
+app.delete("/api/deleteBoard/:boardId", async (req, res) => {
+  const { boardId } = req.params;
+  const userId = req.body.userId;
+
+  if (!boardId || !userId) {
+    return res.status(400).json({ message: "Invalid data provided" });
+  }
+
+  try {
+    const board = await Task.findById(boardId);
+
+    if (!board) {
+      return res.status(404).json({ message: "Board not found" });
+    }
+
+    if (board.users[0].toString() !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this board" });
+    }
+
+    await Task.findByIdAndDelete(boardId);
+
+    socketIO.emit("boardDeleted", { boardId });
+    res.json({ message: "Board deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting board:", error);
+    res.status(500).json({ message: "Error deleting board" });
+  }
+});
 app.get("/api/userBoards", async (req, res) => {
   try {
     const userId = req.query.userId;
-    const boards = await Task.find({ users: userId }).select("boardName");
-    res.status(200).json(boards);
+    const boards = await Task.find({ users: userId }).select(
+      "boardName pending ongoing completed"
+    );
+    const boardDetails = boards.map((board) => ({
+      _id: board._id,
+      boardName: board.boardName,
+      pending: board.pending.items.length,
+      ongoing: board.ongoing.items.length,
+      completed: board.completed.items.length,
+    }));
+    res.status(200).json(boardDetails);
   } catch (error) {
     res.status(400).json({ message: "Cannot get boards" });
   }
@@ -380,17 +467,9 @@ app.get("/api/boardUsers", async (req, res) => {
     if (!board) {
       return res.status(404).json({ message: "Board not found" });
     }
-
-    // Pobierz identyfikatory użytkowników z boardu
     const userIds = board.users.map((user) => user.toString());
-
-    // Pobierz użytkowników według identyfikatorów
     const users = await User.find({ _id: { $in: userIds } }).lean();
-
-    // Utwórz mapę użytkowników według identyfikatorów
     const userMap = new Map(users.map((user) => [user._id.toString(), user]));
-
-    // Posortuj użytkowników według kolejności w tablicy userIds
     const sortedUsers = userIds.map((userId) => userMap.get(userId));
 
     const result = sortedUsers.map((user) => ({

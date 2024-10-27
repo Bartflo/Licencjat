@@ -1,4 +1,3 @@
-// client/src/contexts/ThemeContext.js
 import React, { createContext, useState, useMemo, useEffect } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
